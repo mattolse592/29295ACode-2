@@ -224,134 +224,116 @@ void gameAuton()
   pros::ADIDigitalOut Wings('G');
 
   double rC = -1; // conversion between prog bot and team bot
-  int intakeTime = 180;
+  int intakeTime = 190;
 
-  while (pros::millis() < 15000)
-  { // caps code at 15s for testing purposes (comment out upon actual game) /// remove code before commenting out
-    // first drive forward
+  chassis.set_drive_pid(-40 * rC, 127);
+  chassis.wait_until(-20 * rC);
 
-    chassis.set_drive_pid(90 * rC, 127);
-    chassis.wait_until(38 * rC);
-    // chassis.reset_pid_targets();
+  chassis.set_drive_pid(90 * rC, 127);
+  chassis.wait_until(38 * rC);
+  // chassis.reset_pid_targets();
 
-    intake.move(127);
-    pros::delay(intakeTime);
-    intake.move(0);
+  intake.move(127);
+  pros::delay(intakeTime * 0.8);
+  intake.move(0);
 
-    chassis.set_drive_pid(-200 * rC, 127);
-    chassis.wait_until(-121 * rC);
+  chassis.set_drive_pid(-200 * rC, 127);
+  chassis.wait_until(-110 * rC);
 
-    // chassis.set_turn_pid(40, TURN_SPEED);
-    // chassis.wait_drive();
+  // chassis.set_turn_pid(40, TURN_SPEED);
+  // chassis.wait_drive();
 
-    chassis.set_swing_pid(ez::RIGHT_SWING, -40, 127);
-    chassis.wait_drive();
+  chassis.set_turn_pid(90, 127);
+  chassis.wait_drive();
 
-    // left arm extends
+  // intake output
+  intake.move(-90);
+  pros::delay(intakeTime * 2);
+  intake.move(0);
 
-    Wings.set_value(true);
-        pros::delay(200);
+  chassis.set_turn_pid(-37, 127);
+  chassis.wait_drive();
 
-        //360
+  // left arm extends
 
-    //chassis.set_turn_pid(-400, 127);
-    //chassis.wait_drive();
+  // Wings.set_value(true);
+  // pros::delay(200);
 
-    chassis.set_drive_pid(-100 * rC, 127);
-    chassis.wait_until(-79 * rC);
+  // 360
 
-    chassis.set_swing_pid(ez::RIGHT_SWING, -90, 127);
-    chassis.wait_drive();
+  // chassis.set_turn_pid(-400, 127);
+  // chassis.wait_drive();
 
-        Wings.set_value(false);
+  chassis.set_drive_pid(-120 * rC, 127);
+  chassis.wait_until(-81 * rC);
 
-    chassis.set_drive_pid(-90 * rC, 127);
-    chassis.wait_until(-35 * rC);
+  chassis.set_swing_pid(ez::RIGHT_SWING, -90, 127);
+  chassis.wait_drive();
 
-    chassis.set_drive_pid(80 * rC, 127);
-    chassis.wait_until(44 * rC);
+  // Wings.set_value(false);
 
-    chassis.set_turn_pid(90, 127);
-    chassis.wait_drive();
+  chassis.set_drive_pid(-90 * rC, 127);
+  chassis.wait_until(-34 * rC);
 
-    // intake output
-    intake.move(-127);
-    pros::delay(intakeTime);
-    intake.move(0);
+  chassis.set_drive_pid(60 * rC, 127);
+  chassis.wait_until(38 * rC);
 
-    chassis.set_drive_pid(80 * rC, 127);
-    chassis.wait_until(47 * rC);
-/*
-    chassis.set_drive_pid(-50, 127);
-    chassis.wait_until(-20);
+  chassis.set_turn_pid(18, 127);
+  chassis.wait_drive();
 
-    chassis.set_drive_pid(50, 127);
-    chassis.wait_until(25);
-*/
-    chassis.set_drive_pid(-80 * rC, 127);
-    chassis.wait_until(-35 * rC);
+  chassis.set_drive_pid(240 * rC, 127);
+  chassis.wait_until(170 * rC);
 
-    chassis.set_turn_pid(26, 127);
-    chassis.wait_drive();
+  intake.move(127);
+  pros::delay(intakeTime);
+  intake.move(0);
 
-    chassis.set_drive_pid(240 * rC, 127);
-    chassis.wait_until(170 * rC);
+  chassis.set_turn_pid(150, 127);
+  chassis.wait_drive();
 
-    intake.move(127);
-    pros::delay(intakeTime);
-    intake.move(0);
+  intake.move(-127);
+  pros::delay(intakeTime);
+  intake.move(0);
 
-    chassis.set_turn_pid(150, 127);
-    chassis.wait_drive();
+  chassis.set_turn_pid(70, 127);
+  chassis.wait_drive();
 
-    intake.move(-127);
-    pros::delay(intakeTime);
-    intake.move(0);
+  chassis.set_drive_pid(120 * rC, 127);
+  chassis.wait_until(71 * rC);
 
-    chassis.set_turn_pid(70, 127);
-    chassis.wait_drive();
+  intake.move(127);
+  pros::delay(intakeTime * 1.75);
+  intake.move(0);
 
-    chassis.set_drive_pid(120 * rC, 127);
-    chassis.wait_until(74 * rC);
+  chassis.set_turn_pid(0, 127);
+  chassis.wait_drive();
 
-    intake.move(127);
-    pros::delay(intakeTime);
-    intake.move(0);
+  // extend both arms
+  Wings.set_value(true);
 
-    chassis.set_turn_pid(0, 127);
-    chassis.wait_drive();
+  chassis.set_drive_pid(-180 * rC, 127);
+  chassis.wait_until(-126 * rC);
 
-    // extend both arms
-    Wings.set_value(true);
+  chassis.set_drive_pid(60 * rC, 127);
+  chassis.wait_until(40 * rC);
 
-    chassis.set_drive_pid(-150 * rC, 127);
-    chassis.wait_until(-120 * rC);
+  Wings.set_value(false);
 
-    chassis.set_drive_pid(60 * rC, 127);
-    chassis.wait_until(40 * rC);
+  chassis.set_turn_pid(180, 127);
+  chassis.wait_drive();
 
-    Wings.set_value(false);
+  intake.move(-127);
+  pros::delay(intakeTime * 1.2);
+  intake.move(0);
 
-        chassis.set_turn_pid(180, 127);
-    chassis.wait_drive();
+  chassis.set_drive_pid(90 * rC, 127);
+  chassis.wait_until(45 * rC);
 
-    intake.move(-127);
-    pros::delay(intakeTime);
-    intake.move(0);
-
-    chassis.set_drive_pid(90 * rC, 127);
-    chassis.wait_until(45 * rC);
-
-    while (1)
-    {
-      pros::delay(100);
-    }
+  for (int i = 0; i < 2; i++)
+  {
+    chassis.left_motors[i].move(0);
+    chassis.right_motors[i].move(0);
   }
-      for (int i = 0; i < 2; i++)
-    {
-      chassis.left_motors[i].move(0);
-      chassis.right_motors[i].move(0);
-    }
   while (1)
   {
     // intake.move(0);
@@ -375,4 +357,140 @@ void gameAuton()
 // skills autonomous routine //no while loop is needed as it is preset to 1 minute
 void skillsAuton()
 {
+  static pros::Motor cataleft(12, pros::E_MOTOR_GEARSET_36);
+  static pros::Motor cataright(-19, pros::E_MOTOR_GEARSET_36); // comment out with prog
+  // static pros::Motor cataright(9000, pros::E_MOTOR_GEARSET_36); // comment out with real bort
+
+  static pros::Motor_Group cata({cataleft, cataright});
+  pros::Rotation rot(2);
+
+  bool trueTrack = true;
+ // cata variables
+  bool cataOff = false;
+  long launchTrack = pros::millis();
+  int_least8_t oldRot;
+
+  pros::ADIDigitalOut Wings('G');
+
+  // # of catapult launches
+  int cataLaunches = 10;
+
+  chassis.set_swing_pid(ez::RIGHT_SWING, 45, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(-90, 127);
+  chassis.wait_until(-55);
+
+  chassis.set_turn_pid(-20, 127);
+  chassis.wait_drive();
+
+  rot.set_position(0);
+
+  cata.move(127);
+  /*
+
+  for (int i = 0; i < cataLaunches * 5; i++)
+  {
+    trueTrack = true;
+    while (trueTrack == true)
+    {
+      if (rot.get_position() / 100 < 0)
+      {
+        rot.set_position(0);
+      }
+
+      // keeps track of the old rotation sensor's position
+      if (launchTrack + 500 < pros::millis()) // running if statement every half second
+      {
+        launchTrack = pros::millis();
+        oldRot = rot.get_position() / 100;
+      }
+
+      if (oldRot > rot.get_position() + 40) // checks if cata fires
+      {
+        trueTrack = false;
+      }
+    }
+  }
+
+  */
+
+ //pros::delay(41300);
+
+  cata.move(0);
+
+  chassis.set_turn_pid(45, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(130, 127);
+  chassis.wait_until(95);
+
+  chassis.set_turn_pid(-3, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(330, 127);
+  chassis.wait_until(290);
+
+  //Wings.set_value(false);
+
+  chassis.set_turn_pid(-20, 90);
+  //chassis.set_drive_pid(120, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(220, 127);
+  chassis.wait_until(70);
+
+    chassis.set_turn_pid(-135, 90);
+  //chassis.set_drive_pid(120, 127);
+  chassis.wait_drive();
+
+        Wings.set_value(true);
+
+    chassis.set_drive_pid(220, 127);
+  chassis.wait_until(50);
+
+  Wings.set_value(false);
+
+  chassis.set_turn_pid(-20, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(-170, 127);
+  chassis.wait_until(-60);
+
+  chassis.set_turn_pid(-40, 127);
+  chassis.wait_drive();
+
+  Wings.set_value(true);
+
+  chassis.set_drive_pid(200, 127);
+  chassis.wait_until(127);
+
+  Wings.set_value(false);
+
+  chassis.set_turn_pid(0, 127);
+  chassis.wait_drive();
+
+  chassis.set_drive_pid(-150, 127);
+  chassis.wait_until(-100);
+
+
+
+  chassis.set_turn_pid(90, 127);
+  chassis.wait_drive();
+
+    chassis.set_drive_pid(-150, 127);
+  chassis.wait_until(-100);
+
+  chassis.set_turn_pid(20, 127);
+  chassis.wait_drive();
+
+  Wings.set_value(true);
+
+  chassis.set_drive_pid(160, 127);
+  chassis.wait_until(140);
+
+  while (1)
+  {
+    pros::delay(100);
+  }
 }

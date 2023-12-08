@@ -91,7 +91,7 @@ void initialize()
       // Auton("Swing Example\n\nSwing, drive, swing.", swing_example),
       // Auton("Combine all 3 movements", combining_movements),
       // Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
-      Auton("Runs 15s In-Game Autonomous.", gameAuton),
+      //Auton("Runs 15s In-Game Autonomous.", gameAuton),
       Auton("Runs Skills Route Using EZ.", skillsAuton),
   });
 
@@ -248,6 +248,7 @@ void opcontrol()
     {
       rot.set_position(0);
     }
+    
 
     //keeps track of the old rotation sensor's position
     if (launchTrack + 500 < pros::millis()) //running if statement every half second
@@ -307,14 +308,8 @@ void opcontrol()
     pros::Motor M4(1); //bottom right motor
 
     M1 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
-
-    pros::Motor M2(2); //Top right motor
     M2 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-
-    pros::Motor_Group M3(3, 5); //Bottom right motor
     M3 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-
-    pros::Motor M4(4); //Bottom left motor
     M4 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
     */
 
