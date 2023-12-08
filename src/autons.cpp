@@ -234,7 +234,7 @@ void gameAuton()
   // chassis.reset_pid_targets();
 
   intake.move(127);
-  pros::delay(intakeTime * 0.8);
+  pros::delay(intakeTime);
   intake.move(0);
 
   chassis.set_drive_pid(-200 * rC, 127);
@@ -292,20 +292,31 @@ void gameAuton()
   chassis.wait_drive();
 
   intake.move(-127);
-  pros::delay(intakeTime);
+    chassis.set_drive_pid(120 * rC, 127);
+  chassis.wait_until(20 * rC);
   intake.move(0);
 
-  chassis.set_turn_pid(70, 127);
+  chassis.set_turn_pid(56, 127);
   chassis.wait_drive();
 
   chassis.set_drive_pid(120 * rC, 127);
-  chassis.wait_until(71 * rC);
+  chassis.wait_until(56 * rC);
 
   intake.move(127);
-  pros::delay(intakeTime * 1.75);
+  pros::delay(intakeTime * 1.45);
   intake.move(0);
 
-  chassis.set_turn_pid(0, 127);
+    chassis.set_drive_pid(-120 * rC, 127);
+  chassis.wait_until(-26 * rC);
+
+  chassis.set_turn_pid(150, 127);
+  chassis.wait_drive();
+
+    intake.move(-127);
+  pros::delay(intakeTime * 1.35);
+  intake.move(0);
+
+    chassis.set_turn_pid(-25, 127);
   chassis.wait_drive();
 
   // extend both arms
@@ -317,7 +328,9 @@ void gameAuton()
   chassis.set_drive_pid(60 * rC, 127);
   chassis.wait_until(40 * rC);
 
-  Wings.set_value(false);
+  //Wings.set_value(false);
+
+  /*
 
   chassis.set_turn_pid(180, 127);
   chassis.wait_drive();
@@ -328,6 +341,8 @@ void gameAuton()
 
   chassis.set_drive_pid(90 * rC, 127);
   chassis.wait_until(45 * rC);
+
+  */
 
   for (int i = 0; i < 2; i++)
   {
@@ -447,7 +462,7 @@ void skillsAuton()
         Wings.set_value(true);
 
     chassis.set_drive_pid(220, 127);
-  chassis.wait_until(50);
+  chassis.wait_until(100);
 
   Wings.set_value(false);
 
