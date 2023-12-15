@@ -91,7 +91,8 @@ void initialize()
       // Auton("Swing Example\n\nSwing, drive, swing.", swing_example),
       // Auton("Combine all 3 movements", combining_movements),
       // Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
-      Auton("Runs 15s In-Game Autonomous.", gameAuton),
+      //Auton("Runs defensive In-Game Autonomous.", defGame),
+      //Auton("Runs 15s In-Game Autonomous.", gameAuton),
       Auton("Runs Skills Route Using EZ.", skillsAuton),
   });
 
@@ -167,7 +168,7 @@ void opcontrol()
   rot.set_position(0);
 
   // cata variables
-  bool cataOff = false;
+  bool cataOff = true;
   long launchTrack = pros::millis();
   bool launchFlip = true;
   int_least8_t oldRot;

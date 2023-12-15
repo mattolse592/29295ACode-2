@@ -13,6 +13,7 @@ void drive_and_turn();
 void combining_movements();
 void gameAuton();
 void skillsAuton();
+void defGame();
 
 void default_constants();
 void one_mogo_constants();
