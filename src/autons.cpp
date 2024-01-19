@@ -491,8 +491,8 @@ pros::Rotation rot(2);
   chassis.set_turn_pid(60, 127);
   chassis.wait_drive();
 
-        chassis.set_drive_pid(130, 127);
-  chassis.wait_until(110);
+        chassis.set_drive_pid(180, 127);
+  chassis.wait_until(140);
 
     chassis.set_turn_pid(23, 127);
   chassis.wait_drive();
