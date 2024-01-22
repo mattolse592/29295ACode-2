@@ -189,7 +189,7 @@ void opcontrol()
   double turnC;
 
   // curve out of 10
-  // modelled after https://www.desmos.com/calculator/7oyvwwpmed
+  // modelled after https://www.desmos.com/calculator/toufp2r8qb
   int pCurve = 0;   // curve for fwd/back
   int tCurve = 0.3; // curve for turn
 
