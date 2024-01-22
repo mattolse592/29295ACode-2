@@ -11,13 +11,13 @@
 Drive chassis(
     // Left Chassis Ports (negative port will reverse it!)
     //   the first port is the sensored port (when trackers are not used!)
-    {-10, -8, -7} // real
+    {-7, 9, -8} // real
     //{-9, -20} // old
 
     // Right Chassis Ports (negative port will reverse it!)
     //   the first port is the sensored port (when trackers are not used!)
     ,
-    {1, 11, 2} // real
+    {2, -5, 6} // real
     //{9, 10} // old
 
     // IMU Port
@@ -72,7 +72,7 @@ void initialize()
 
   // Configure your chassis controls
   chassis.toggle_modify_curve_with_controller(true); // Enables modifying the controller curve with buttons on the joysticks
-  chassis.set_active_brake(0);                       // Sets the active brake kP. We recommend 0.1.
+  chassis.set_active_brake(0.1);                     // Sets the active brake kP. We recommend 0.1.
   chassis.set_curve_default(0, 0);                   // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)
   default_constants();                               // Set the drive to your own constants from autons.cpp!
   exit_condition_defaults();                         // Set the exit conditions to your own constants from autons.cpp!
@@ -161,34 +161,46 @@ void autonomous()
  */
 void opcontrol()
 {
-  // This is preference to what you like to drive on.
-  chassis.set_drive_brake(MOTOR_BRAKE_COAST);
-  rot.set_position(0);
-
-  // cata variables
+  // old cata variables
+  /*
   bool cataOff = true;
   long launchTrack = pros::millis();
   bool launchFlip = true;
   int_least8_t oldRot;
+  rot.set_position(0);
+  */
 
   // pneumatic switch booleans
   bool blockerSwitch = false;
   bool wingSwitch = false;
 
-  bool marekControls = false;
-
-  double power;
-  double Cpower;
-  double turn;
-  double Cturn;
-  // cata.set_brake_modes(MOTOR_BRAKE_COAST);
-
+  //cata variables
   int cataSpeed = 127;
+  const int cataAdjust = 6;
+
+  //drive variables
+  bool marekControls = false;
+  const float dBand = 5;
+
+  //stick variables to calulate speeds with curve
+  double power;
+  double powerC;
+  double turn;
+  double turnC;
+
+  // curve out of 10
+  // modelled after https://www.desmos.com/calculator/7oyvwwpmed
+  int pCurve = 0;   // curve for fwd/back
+  int tCurve = 0.3; // curve for turn
+
+  double e = exp(1); // Euler's constant
+
+  chassis.set_drive_brake(MOTOR_BRAKE_COAST);
 
   while (true)
   {
     // chassis.tank(); // Tank control
-    chassis.arcade_standard(ez::SPLIT); // Standard split arcade
+    // chassis.arcade_standard(ez::SPLIT); // Standard split arcade
     // chassis.arcade_standard(ez::SINGLE); // Standard single arcade
     // chassis.arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.arcade_flipped(ez::SINGLE); // Flipped single arcade
@@ -207,42 +219,38 @@ void opcontrol()
 
     // driver code
     //  variable for # of motors per side
-    const int sideMotors = 2;
+    const int sideMotors = 3;
     // get stick values
-    power = master.get_analog(ANALOG_LEFT_Y);
-    if (power > 5 || power < -5)
+    if (master.get_analog(ANALOG_LEFT_Y) > dBand || master.get_analog(ANALOG_LEFT_Y) < -dBand)
     {
-      Cpower = 107.1 * sin(0.012 * power) + 20;
-      // double Cpower = 21.018*log(power + 1) + 30;
+      power = master.get_analog(ANALOG_LEFT_Y);
       if (marekControls == true)
       {
-        Cpower = -Cpower;
+        power = -power;
       }
+      // calculates power curve for joystick
+      powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
     }
     else
     {
-      Cpower = 0;
+      powerC = 0;
     }
 
-    turn = -master.get_analog(ANALOG_RIGHT_X);
-    if (turn > 5 || turn < -5)
+    // gets turn value and calculates curve
+    if (master.get_analog(ANALOG_RIGHT_X) > dBand || master.get_analog(ANALOG_RIGHT_X) < -dBand)
     {
-      Cturn = -(77.1 * sin(0.012 * turn) + 50);
+      turn = -master.get_analog(ANALOG_RIGHT_X);
+      turnC = turn * (pow(e, -(tCurve / 10)) + pow(e, (abs(turn) - 127) / 10) * (1 - pow(e, -(tCurve / 10))));
     }
     else
     {
-      Cturn = 0;
+      turnC = 0;
     }
 
     for (int i = 0; i < sideMotors; i++)
     {
-      //curve
-      //chassis.left_motors[i].move(Cpower - Cturn);
-      //chassis.right_motors[i].move(Cpower + Cturn);
-
-      //no curve
-      chassis.left_motors[i].move(power - turn);
-      chassis.right_motors[i].move(power + turn);
+      chassis.left_motors[i].move(powerC - turnC);
+      chassis.right_motors[i].move(powerC + turnC);
     }
 
     // intake code
@@ -262,11 +270,11 @@ void opcontrol()
     // cata speed adjustment code
     if (master.get_digital_new_press(DIGITAL_UP))
     {
-      cataSpeed += 6;
+      cataSpeed += cataAdjust;
     }
     if (master.get_digital_new_press(DIGITAL_DOWN))
     {
-      cataSpeed -= 6;
+      cataSpeed -= cataAdjust;
     }
 
     if (cataSpeed > 127)
@@ -375,7 +383,6 @@ void opcontrol()
     // master.set_text(1, 1, "Rot: " + std::to_string(rotDeg));
     ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
     ez::print_to_screen("Linear Speed: " + std::to_string(power), 4);
-    ez::print_to_screen("Curve Speed: " + std::to_string(Cpower), 5);
     ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
     //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
 
