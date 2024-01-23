@@ -173,16 +173,18 @@ void opcontrol()
   // pneumatic switch booleans
   bool blockerSwitch = false;
   bool wingSwitch = false;
+  bool lWingSwitch = false;
+  bool rWingSwitch = false;
 
-  //cata variables
+  // cata variables
   int cataSpeed = 127;
   const int cataAdjust = 6;
 
-  //drive variables
+  // drive variables
   bool marekControls = false;
   const float dBand = 5;
 
-  //stick variables to calulate speeds with curve
+  // stick variables to calulate speeds with curve
   double power;
   double powerC;
   double turn;
@@ -223,12 +225,8 @@ void opcontrol()
     // get stick values
     if (master.get_analog(ANALOG_LEFT_Y) > dBand || master.get_analog(ANALOG_LEFT_Y) < -dBand)
     {
-      power = master.get_analog(ANALOG_LEFT_Y);
-      if (marekControls == true)
-      {
-        power = -power;
-      }
       // calculates power curve for joystick
+      power = master.get_analog(ANALOG_LEFT_Y);
       powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
     }
     else
@@ -345,6 +343,7 @@ void opcontrol()
     {
       rot.set_position(0);
     }
+    */
 
     // toggleable blocker
     if (master.get_digital_new_press(DIGITAL_L1))
@@ -360,20 +359,61 @@ void opcontrol()
         blocker.set_value(false);
       }
     }
-    */
 
     // wings
     if (master.get_digital_new_press(DIGITAL_R1))
     {
-      if (wingSwitch == false)
+      if (lWingSwitch == true && rWingSwitch == true) // if both wings are down, both come up
       {
-        wingSwitch = true;
-        Wings.set_value(true);
+        lWingSwitch = false;
+        rWingSwitch = false;
+
+        lWing.set_value(false);
+        rWing.set_value(false);
+      }
+      else if (lWingSwitch == true || rWingSwitch == true) // if one wing is down, both come down
+      {
+        lWingSwitch = true;
+        rWingSwitch = true;
+
+        lWing.set_value(true);
+        rWing.set_value(true);
+      }
+      else // if both wings are up, both come down
+      {
+        lWingSwitch = true;
+        rWingSwitch = true;
+
+        lWing.set_value(true);
+        rWing.set_value(true);
+      }
+    }
+
+    if (master.get_digital_new_press(DIGITAL_LEFT))
+    {
+      if (lWingSwitch == false)
+      {
+        lWingSwitch = true;
+        lWing.set_value(true);
       }
       else
       {
-        wingSwitch = false;
-        Wings.set_value(false);
+        lWingSwitch = false;
+        lWing.set_value(false);
+      }
+    }
+
+    if (master.get_digital_new_press(DIGITAL_RIGHT))
+    {
+      if (rWingSwitch == false)
+      {
+        rWingSwitch = true;
+        rWing.set_value(true);
+      }
+      else
+      {
+        rWingSwitch = false;
+        rWing.set_value(false);
       }
     }
 
