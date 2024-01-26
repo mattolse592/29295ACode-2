@@ -22,7 +22,7 @@ Drive chassis(
 
     // IMU Port
     ,
-    300 // old
+    19
 
     // Wheel Diameter (Remember, 4" wheels are actually 4.125!)
     //    (or tracking wheel diameter)
@@ -39,7 +39,7 @@ Drive chassis(
     // eg. if your drive is 84:36 where the 36t is powered, your RATIO would be 2.333.
     // eg. if your drive is 36:60 where the 60t is powered, your RATIO would be 0.6.
     ,
-    0.5
+    0.57143
 
     // Uncomment if using tracking wheels
     /*
@@ -84,16 +84,16 @@ void initialize()
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.add_autons({
 
-      Auton("Example Drive\n\nDrive forward and come back.", drive_example),
-      // Auton("Example Turn\n\nTurn 3 times.", turn_example),
+      //Auton("Example Drive\n\nDrive forward and come back.", drive_example),
+      //Auton("Example Turn\n\nTurn 3 times.", turn_example),
       // Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
       // Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
       // Auton("Swing Example\n\nSwing, drive, swing.", swing_example),
       // Auton("Combine all 3 movements", combining_movements),
       // Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
-      // Auton("Runs defensive In-Game Autonomous.", defGame),
+      Auton("Runs defensive In-Game Autonomous.", defGame),
       // Auton("Runs 15s In-Game Autonomous.", gameAuton),
-      Auton("Runs Skills Route Using EZ.", skillsAuton),
+      //Auton("Runs Skills Route Using EZ.", skillsAuton),
   });
 
   // Initialize chassis and auton selector
@@ -172,7 +172,6 @@ void opcontrol()
 
   // pneumatic switch booleans
   bool blockerSwitch = false;
-  bool wingSwitch = false;
   bool lWingSwitch = false;
   bool rWingSwitch = false;
 
@@ -181,7 +180,6 @@ void opcontrol()
   const int cataAdjust = 6;
 
   // drive variables
-  bool marekControls = false;
   const float dBand = 5;
 
   // stick variables to calulate speeds with curve
@@ -206,18 +204,6 @@ void opcontrol()
     // chassis.arcade_standard(ez::SINGLE); // Standard single arcade
     // chassis.arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.arcade_flipped(ez::SINGLE); // Flipped single arcade
-
-    if (master.get_digital_new_press(DIGITAL_LEFT))
-    {
-      if (marekControls == true)
-      {
-        marekControls = false;
-      }
-      else
-      {
-        marekControls = true;
-      }
-    }
 
     // driver code
     //  variable for # of motors per side
@@ -275,6 +261,7 @@ void opcontrol()
       cataSpeed -= cataAdjust;
     }
 
+    //caps catapult speed at a certain range
     if (cataSpeed > 127)
     {
       cataSpeed = 127;
@@ -293,6 +280,89 @@ void opcontrol()
     {
       cata.move(0);
     }
+
+    // toggleable blocker
+    if (master.get_digital_new_press(DIGITAL_L1))
+    {
+      if (blockerSwitch == false)
+      {
+        blockerSwitch = true;
+        blocker.set_value(true);
+      }
+      else
+      {
+        blockerSwitch = false;
+        blocker.set_value(false);
+      }
+    }
+
+    // wings
+    if (master.get_digital_new_press(DIGITAL_R1))
+    {
+      if (lWingSwitch == true && rWingSwitch == true) // if both wings are down, both come up
+      {
+        lWingSwitch = false;
+        rWingSwitch = false;
+
+        lWing.set_value(false);
+        rWing.set_value(false);
+      }
+      else if (lWingSwitch == true || rWingSwitch == true) // if one wing is down, both come down
+      {
+        lWingSwitch = true;
+        rWingSwitch = true;
+
+        lWing.set_value(true);
+        rWing.set_value(true);
+      }
+      else // if both wings are up, both come down
+      {
+        lWingSwitch = true;
+        rWingSwitch = true;
+
+        lWing.set_value(true);
+        rWing.set_value(true);
+      }
+    }
+
+    //left wing individual controls
+    if (master.get_digital_new_press(DIGITAL_LEFT))
+    {
+      if (lWingSwitch == false)
+      {
+        lWingSwitch = true;
+        lWing.set_value(true);
+      }
+      else
+      {
+        lWingSwitch = false;
+        lWing.set_value(false);
+      }
+    }
+
+    //right wing individual controls
+    if (master.get_digital_new_press(DIGITAL_RIGHT))
+    {
+      if (rWingSwitch == false)
+      {
+        rWingSwitch = true;
+        rWing.set_value(true);
+      }
+      else
+      {
+        rWingSwitch = false;
+        rWing.set_value(false);
+      }
+    }
+
+    // master.rumble(".");
+
+    // ez::print_to_screen("Rotation Angle: " + std::to_string(rotDeg), 3);
+    // master.set_text(1, 1, "Rot: " + std::to_string(rotDeg));
+    ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
+    ez::print_to_screen("Linear Speed: " + std::to_string(power), 4);
+    ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
+    //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
 
     /*
     // archive old cata
@@ -344,87 +414,6 @@ void opcontrol()
       rot.set_position(0);
     }
     */
-
-    // toggleable blocker
-    if (master.get_digital_new_press(DIGITAL_L1))
-    {
-      if (blockerSwitch == false)
-      {
-        blockerSwitch = true;
-        blocker.set_value(true);
-      }
-      else
-      {
-        blockerSwitch = false;
-        blocker.set_value(false);
-      }
-    }
-
-    // wings
-    if (master.get_digital_new_press(DIGITAL_R1))
-    {
-      if (lWingSwitch == true && rWingSwitch == true) // if both wings are down, both come up
-      {
-        lWingSwitch = false;
-        rWingSwitch = false;
-
-        lWing.set_value(false);
-        rWing.set_value(false);
-      }
-      else if (lWingSwitch == true || rWingSwitch == true) // if one wing is down, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-      else // if both wings are up, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-    }
-
-    if (master.get_digital_new_press(DIGITAL_LEFT))
-    {
-      if (lWingSwitch == false)
-      {
-        lWingSwitch = true;
-        lWing.set_value(true);
-      }
-      else
-      {
-        lWingSwitch = false;
-        lWing.set_value(false);
-      }
-    }
-
-    if (master.get_digital_new_press(DIGITAL_RIGHT))
-    {
-      if (rWingSwitch == false)
-      {
-        rWingSwitch = true;
-        rWing.set_value(true);
-      }
-      else
-      {
-        rWingSwitch = false;
-        rWing.set_value(false);
-      }
-    }
-
-    // master.rumble(".");
-
-    // ez::print_to_screen("Rotation Angle: " + std::to_string(rotDeg), 3);
-    // master.set_text(1, 1, "Rot: " + std::to_string(rotDeg));
-    ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
-    ez::print_to_screen("Linear Speed: " + std::to_string(power), 4);
-    ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
-    //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
 
     /*
     //X-Drive Code
