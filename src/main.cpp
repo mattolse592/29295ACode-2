@@ -91,9 +91,9 @@ void initialize()
       // Auton("Swing Example\n\nSwing, drive, swing.", swing_example),
       // Auton("Combine all 3 movements", combining_movements),
       // Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
-      Auton("Runs defensive In-Game Autonomous.", defGame),
-      // Auton("Runs 15s In-Game Autonomous.", gameAuton),
-      //Auton("Runs Skills Route Using EZ.", skillsAuton),
+      //Auton("Runs defensive In-Game Autonomous.", defAuton),
+      Auton("Runs offensive In-Game Autonomous.", offAuton),
+      //Auton("Runs Skills Autonomous.", skillsAuton),
   });
 
   // Initialize chassis and auton selector

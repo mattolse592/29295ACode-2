@@ -202,12 +202,128 @@ void interfered_example()
   chassis.wait_drive();
 }
 
-///
-///
-///
-///
+/*
+ * Autonomous Routines designed in EZ Template for 29295A's Team Bot.
+ * LemLib is Currently Being Tested And Could Replace Current Code (false information)
+ * Autos Are in the Following Order:
+ * Defensive
+ * Offensive
+ * Skills
+ * Remember, We Ball.
+ */
 
-void defGame()
+const int defDriveSpeed = 110;
+const int defTurnSpeed = 110;
+
+void defAuton()
+{
+  // variables for intake, blocker, and wings
+  pros::Motor intake(1, pros::E_MOTOR_GEARSET_06);
+  pros::ADIDigitalOut blocker('A');
+  pros::ADIDigitalOut rWing('B');
+  pros::ADIDigitalOut lWing('C');
+
+  int intakeTime = 320;
+
+  // outtake preload
+  intake = -70;
+
+  pros::delay(300);
+  intake = -127;
+  pros::delay(intakeTime);
+  intake = 0;
+
+  // turn onto first triball]
+  chassis.set_turn_pid(-70, defTurnSpeed);
+  chassis.wait_drive();
+
+  // drive to and intake it, while staying on line
+  intake = 127;
+
+  chassis.set_drive_pid(-114, defDriveSpeed);
+  chassis.wait_drive();
+
+  intake = 30;
+
+  // turn to other ball to hit over with wing
+  chassis.set_turn_pid(-179, defTurnSpeed);
+  chassis.wait_drive();
+
+  // drop left wing
+  lWing.set_value(true);
+
+  // drive at and hit over triball
+  chassis.set_drive_pid(45, defDriveSpeed);
+  chassis.wait_drive();
+
+  // retrack wing
+  lWing.set_value(false);
+
+  // back up for turn
+  chassis.set_drive_pid(-20, defDriveSpeed);
+  chassis.wait_drive();
+
+  // turn to point where triball will be dropped off
+  chassis.set_turn_pid(-240, defTurnSpeed);
+  chassis.wait_drive();
+
+  // drive to outtake point there
+  chassis.set_drive_pid(-55, defDriveSpeed);
+  chassis.wait_drive();
+
+  // turn to outtake
+  chassis.set_turn_pid(-313, defTurnSpeed);
+  chassis.wait_drive();
+
+  // outtake middle ball
+  intake = -127;
+  pros::delay(intakeTime);
+  intake = 0;
+
+  // turn back to line up with back wall
+  chassis.set_turn_pid(-10, 127);
+  chassis.wait_drive();
+
+  // drive there
+  chassis.set_drive_pid(14, defDriveSpeed);
+  chassis.wait_drive();
+
+  // turn to get lined up with matchload zone
+  chassis.set_turn_pid(-90, 127);
+  chassis.wait_drive();
+
+  // swing to grab corner ball
+  chassis.set_swing_pid(RIGHT_SWING, -135, defTurnSpeed);
+  chassis.wait_drive();
+
+  // drop right wing to clear
+  rWing.set_value(true);
+
+  // clear
+  chassis.set_drive_pid(14, defDriveSpeed);
+  chassis.wait_drive();
+
+  // close wing
+  rWing.set_value(false);
+
+  // swing to line up and clear
+  chassis.set_swing_pid(RIGHT_SWING, -180, defTurnSpeed);
+  chassis.wait_drive();
+
+  // drive forward slightly
+  chassis.set_drive_pid(27, defDriveSpeed);
+  chassis.wait_drive();
+
+  // left wing drops
+  lWing.set_value(true);
+
+  // clear side
+  chassis.set_drive_pid(50, defDriveSpeed);
+  chassis.wait_drive();
+}
+
+// runs 15 offensive autonomous routine for the game.
+void offAuton()
 {
   pros::Motor intake(1, pros::E_MOTOR_GEARSET_06);
   pros::ADIDigitalOut blocker('A');
@@ -216,249 +332,136 @@ void defGame()
 
   int intakeTime = 320;
 
-  intake = -127;
-  pros::delay(intakeTime);
-  intake = 0;
+  // intake and move to first triball
+  intake.move(127);
+  chassis.set_drive_pid(-163, 127);
+  chassis.wait_drive();
+  intake.move(30);
 
-  chassis.set_turn_pid(48, 127);
+  // swing to outake
+  chassis.set_turn_pid(-53, 127);
   chassis.wait_drive();
 
-  intake = 127;
-
-  chassis.set_drive_pid(-123, 127, true);
-  chassis.wait_until(-121);
-
-  intake = 30;
-
-  chassis.set_turn_pid(-73, 127);
-  chassis.wait_drive();
-
-  // left wing open
   lWing.set_value(true);
 
-  chassis.set_drive_pid(60, 127);
+  // slam
+  chassis.set_drive_pid(90, 127);
+  chassis.wait_drive();
+
+  // back
+  chassis.set_drive_pid(-35, 127);
   chassis.wait_drive();
 
   lWing.set_value(false);
 
-  chassis.set_drive_pid(-20, 127);
+  chassis.set_turn_pid(-233, 127);
   chassis.wait_drive();
 
-  chassis.set_turn_pid(-128, 127);
+  intake.move(0);
+
+  chassis.set_drive_pid(-54, 127);
   chassis.wait_drive();
 
-  chassis.set_drive_pid(-66, 127, true);
+  // back up slightly
+  chassis.set_drive_pid(30, 127);
   chassis.wait_drive();
 
-  chassis.set_turn_pid(-160, 127);
+  // turn to snatch
+  chassis.set_turn_pid(-79, 127);
   chassis.wait_drive();
 
-  intake = -127;
-  pros::delay(intakeTime);
-  intake = 0;
+  // grab 3rd ball
+  intake.move(127);
+  chassis.set_drive_pid(-68, 127);
+  chassis.wait_drive();
+  intake.move(30);
 
-  chassis.set_turn_pid(-69, 127);
+  // swing to outtake into corner
+  chassis.set_turn_pid(-198, 127);
   chassis.wait_drive();
 
-  chassis.set_drive_pid(-36, 127, true);
+  // drive to drop off point
+  chassis.set_drive_pid(-64, 127);
   chassis.wait_drive();
 
-  chassis.set_turn_pid(25, 127);
+  // turn to outtake to corner
+  chassis.set_turn_pid(-250, 127);
   chassis.wait_drive();
 
-  chassis.set_drive_pid(-35, 127);
+  // outtake
+  intake.move(-127);
+  pros::delay(250);
+  intake.move(0);
+
+  // turn to grab preload and corner ball
+  chassis.set_turn_pid(-330, 127);
   chassis.wait_drive();
 
-  chassis.set_drive_pid(26, 127, true);
+  // drive up
+  chassis.set_drive_pid(40, 127);
   chassis.wait_drive();
 
-  chassis.set_swing_pid(RIGHT_SWING, -25, 127);
+/*
+  // turn
+  chassis.set_turn_pid(-420, 127);
+  chassis.wait_drive();
+*/
+  // swing to grab corner ball
+  chassis.set_swing_pid(RIGHT_SWING, -466, 127);
   chassis.wait_drive();
 
-  // right wing open
 
-      rWing.set_value(true);
-
-  chassis.set_drive_pid(30, 127, true);
+  // right wing extend
+  rWing.set_value(true);
+  // extend left wing to grab pre load
+  lWing.set_value(true);
+  // drive and clear
+  chassis.set_drive_pid(25, 127);
   chassis.wait_drive();
 
-    rWing.set_value(false);
+  // close corner wing
+  rWing.set_value(false);
 
-  chassis.set_swing_pid(RIGHT_SWING, -68, 127);
+    chassis.set_drive_pid(32, 127);
   chassis.wait_drive();
 
-  // close
-
-  chassis.set_drive_pid(90, 127);
+  // swing to slam in the three triballs
+  chassis.set_swing_pid(RIGHT_SWING, -510, 127);
   chassis.wait_drive();
+
+  // slam in triballs
+  chassis.set_drive_pid(32, 127);
+  chassis.wait_drive();
+
+  // backup
+  chassis.set_drive_pid(-15, 127);
+  chassis.wait_drive();
+
+  // double slam
+  chassis.set_drive_pid(20, 127);
+  chassis.wait_drive();
+
+  // close left wing
+  lWing.set_value(false);
 
   while (1)
   {
     pros::delay(100);
   }
-}
 
-/*
- * Autonomous Routines designed in EZ Template for 29295A's Team Bot
- * Do Not Reveal This Code to Outside Sources
- * LemLib is Currently Being Tested And Could Replace Current Code
- * First Autonomous Function is For the In-Game 15 Second Autonmous
- * Second is For the Skills Run
- * Remember, We Ball
- */
-
-/*
-  Psuedo-Code (In-Game)
-
-
-*/
-
-// runs 15 autonomous routine for the game.
-void gameAuton()
-{
-  pros::Motor intake(8, pros::E_MOTOR_GEARSET_06);
-  pros::ADIDigitalOut Wings('G');
-
-  double rC = -1; // conversion between prog bot and team bot
-  int intakeTime = 190;
-
-  chassis.set_drive_pid(-40 * rC, 127);
-  chassis.wait_until(-20 * rC);
-
-  chassis.set_drive_pid(90 * rC, 127);
-  chassis.wait_until(38 * rC);
-  // chassis.reset_pid_targets();
-
-  intake.move(127);
-  pros::delay(intakeTime * 1.3);
-  intake.move(32);
-
-  chassis.set_drive_pid(-200 * rC, 127);
-  chassis.wait_until(-110 * rC);
-
-  // chassis.set_turn_pid(40, TURN_SPEED);
-  // chassis.wait_drive();
-
-  chassis.set_turn_pid(135, 127);
+  chassis.set_drive_pid(-10, 127);
   chassis.wait_drive();
 
-  // intake output
-  intake.move(-90);
-  pros::delay(intakeTime * 2);
-  intake.move(0);
-
-  chassis.set_turn_pid(-37, 127);
+  chassis.set_swing_pid(RIGHT_SWING, -239, 127);
   chassis.wait_drive();
 
-  // left arm extends
-
-  // Wings.set_value(true);
-  // pros::delay(200);
-
-  // 360
-
-  // chassis.set_turn_pid(-400, 127);
-  // chassis.wait_drive();
-
-  chassis.set_drive_pid(-120 * rC, 127);
-  chassis.wait_until(-81 * rC);
-
-  chassis.set_swing_pid(ez::RIGHT_SWING, -90, 127);
+  chassis.set_drive_pid(50, 127);
   chassis.wait_drive();
 
-  // Wings.set_value(false);
+  lWing.set_value(true);
 
-  chassis.set_drive_pid(-90 * rC, 127);
-  chassis.wait_until(-34 * rC);
-
-  chassis.set_drive_pid(60 * rC, 127);
-  chassis.wait_until(38 * rC);
-
-  chassis.set_turn_pid(18, 127);
+  chassis.set_drive_pid(40, 127);
   chassis.wait_drive();
-
-  chassis.set_drive_pid(240 * rC, 127);
-  chassis.wait_until(170 * rC);
-
-  intake.move(127);
-  pros::delay(intakeTime);
-  intake.move(0);
-
-  chassis.set_turn_pid(150, 127);
-  chassis.wait_drive();
-
-  intake.move(-127);
-  chassis.set_drive_pid(120 * rC, 127);
-  chassis.wait_until(20 * rC);
-  intake.move(0);
-
-  chassis.set_turn_pid(56, 127);
-  chassis.wait_drive();
-
-  chassis.set_drive_pid(120 * rC, 127);
-  chassis.wait_until(56 * rC);
-
-  intake.move(127);
-  pros::delay(intakeTime * 1.45);
-  intake.move(32);
-
-  chassis.set_drive_pid(-120 * rC, 127);
-  chassis.wait_until(-16 * rC);
-
-  chassis.set_turn_pid(-25, 127);
-  chassis.wait_drive();
-
-  Wings.set_value(true);
-
-  chassis.set_drive_pid(-180 * rC, 127);
-  chassis.wait_until(-126 * rC);
-
-  chassis.set_drive_pid(90 * rC, 127);
-  chassis.wait_until(40 * rC);
-
-  Wings.set_value(false);
-
-  chassis.set_turn_pid(180, 127);
-  chassis.wait_drive();
-
-  intake.move(-127);
-  pros::delay(intakeTime * 1.35);
-  intake.move(0);
-
-  // extend both arms
-
-  chassis.set_drive_pid(60 * rC, 127);
-  chassis.wait_until(35 * rC);
-
-  chassis.set_drive_pid(-40, 127);
-  chassis.wait_drive();
-  // Wings.set_value(false);
-
-  /*
-
-  chassis.set_turn_pid(180, 127);
-  chassis.wait_drive();
-
-  intake.move(-127);
-  pros::delay(intakeTime * 1.2);
-  intake.move(0);
-
-  chassis.set_drive_pid(90 * rC, 127);
-  chassis.wait_until(45 * rC);
-
-  */
-
-  for (int i = 0; i < 2; i++)
-  {
-    chassis.left_motors[i].move(0);
-    chassis.right_motors[i].move(0);
-  }
-  while (1)
-  {
-    // intake.move(0);
-    // cata.move(0);
-    pros::delay(50);
-  } // while closer (comment here if necessary)
 }
 /*
   Psuedo-Code (Skills)
@@ -476,24 +479,22 @@ void gameAuton()
 // skills autonomous routine //no while loop is needed as it is preset to 1 minute
 void skillsAuton()
 {
-  static pros::Motor cataleft(12, pros::E_MOTOR_GEARSET_36);
-  static pros::Motor cataright(-19, pros::E_MOTOR_GEARSET_36); // comment out with prog
-  // static pros::Motor cataright(9000, pros::E_MOTOR_GEARSET_36); // comment out with real bort
+  // static pros::Motor cataleft(12, pros::E_MOTOR_GEARSET_36);
+  // static pros::Motor cataright(-19, pros::E_MOTOR_GEARSET_36); // comment out with prog
+  //  static pros::Motor cataright(9000, pros::E_MOTOR_GEARSET_36); // comment out with real bort
 
-  static pros::Motor_Group cata({cataleft, cataright});
-  pros::Rotation rot(2);
+  static pros::Motor cata(3, pros::E_MOTOR_GEARSET_36);
 
-  pros::ADIDigitalOut Wings('G');
+  // static pros::Motor_Group cata({cataleft, cataright});
+  // pros::Rotation rot(2);
 
-  rot.set_position(0);
+  pros::ADIDigitalOut blocker('A');
+  pros::ADIDigitalOut rWing('B');
+  pros::ADIDigitalOut lWing('C');
+
+  // rot.set_position(0);
 
   int turnChange = 23;
-
-  chassis.set_drive_pid(90, 127);
-  chassis.wait_until(15);
-
-  chassis.set_drive_pid(-22, 127);
-  chassis.wait_drive();
 
   cata.move(127);
   pros::delay(41300);
@@ -504,7 +505,7 @@ void skillsAuton()
   chassis.set_turn_pid(-110, 127);
   chassis.wait_drive();
 
-  chassis.set_drive_pid(90, 127);
+  chassis.set_drive_pid(65, 127);
   chassis.wait_until(65);
 
   chassis.set_turn_pid(-80, 127);
@@ -554,12 +555,14 @@ void skillsAuton()
   chassis.set_turn_pid(turnChange + -40, 127);
   chassis.wait_drive();
 
-  Wings.set_value(true);
+  lWing.set_value(true);
+  rWing.set_value(true);
 
   chassis.set_drive_pid(200, 127);
   chassis.wait_until(123);
 
-  Wings.set_value(false);
+  lWing.set_value(false);
+  rWing.set_value(false);
 
   chassis.set_turn_pid(turnChange + 0, 127);
   chassis.wait_drive();
@@ -576,12 +579,14 @@ void skillsAuton()
   chassis.set_turn_pid(turnChange + 20, 127);
   chassis.wait_drive();
 
-  Wings.set_value(true);
+  lWing.set_value(true);
+  rWing.set_value(true);
 
   chassis.set_drive_pid(160, 127);
   chassis.wait_until(120);
 
-  Wings.set_value(false);
+  lWing.set_value(false);
+  rWing.set_value(false);
 
   chassis.set_turn_pid(turnChange + -20, 127);
   chassis.wait_drive();
@@ -592,7 +597,8 @@ void skillsAuton()
   chassis.set_turn_pid(turnChange + 0, 127);
   chassis.wait_drive();
 
-  Wings.set_value(true);
+  lWing.set_value(true);
+  rWing.set_value(true);
 
   chassis.set_drive_pid(160, 127);
   chassis.wait_until(120);
