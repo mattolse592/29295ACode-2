@@ -272,7 +272,7 @@ void opcontrol()
     }
 
     // new cata code
-    if (master.get_digital(DIGITAL_A))
+    if (master.get_digital(DIGITAL_B))
     {
       cata.move(cataSpeed);
     }
@@ -282,51 +282,12 @@ void opcontrol()
     }
 
     // toggleable blocker
-    if (master.get_digital_new_press(DIGITAL_L1))
-    {
-      if (blockerSwitch == false)
-      {
-        blockerSwitch = true;
-        blocker.set_value(true);
-      }
-      else
-      {
-        blockerSwitch = false;
-        blocker.set_value(false);
-      }
-    }
 
     // wings
-    if (master.get_digital_new_press(DIGITAL_R1))
-    {
-      if (lWingSwitch == true && rWingSwitch == true) // if both wings are down, both come up
-      {
-        lWingSwitch = false;
-        rWingSwitch = false;
+    
 
-        lWing.set_value(false);
-        rWing.set_value(false);
-      }
-      else if (lWingSwitch == true || rWingSwitch == true) // if one wing is down, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-      else // if both wings are up, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-    }
-
-    //left wing individual controls
-    if (master.get_digital_new_press(DIGITAL_LEFT))
+    //wings control only 1 solenoid
+    if (master.get_digital_new_press(DIGITAL_A))
     {
       if (lWingSwitch == false)
       {
@@ -340,20 +301,7 @@ void opcontrol()
       }
     }
 
-    //right wing individual controls
-    if (master.get_digital_new_press(DIGITAL_RIGHT))
-    {
-      if (rWingSwitch == false)
-      {
-        rWingSwitch = true;
-        rWing.set_value(true);
-      }
-      else
-      {
-        rWingSwitch = false;
-        rWing.set_value(false);
-      }
-    }
+    
 
     // master.rumble(".");
 
@@ -364,69 +312,6 @@ void opcontrol()
     ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
     //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
 
-    /*
-    // archive old cata
-    //toggle switch
-    if (master.get_digital_new_press(DIGITAL_B))
-    {
-      if (cataOff == true)
-      {
-        cataOff = false;
-        cata.move(0);
-      }
-      else
-      {
-        cataOff = true;
-        cata.move(0);
-      }
-    }
-
-    int_least8_t rotDeg = rot.get_position() / 100; // sets rotations sensor to an integer
-    if (cataOff == false)
-    {
-      if (rotDeg < 41 || master.get_digital(DIGITAL_A)) // moves down if button is pressed or rotation is in correct position
-      {
-        cata.move(127);
-        cata.set_brake_modes(MOTOR_BRAKE_COAST);
-      }
-      else // stops cata once distance has been reached
-      {
-        cata.move(0);
-        cata.set_brake_modes(MOTOR_BRAKE_HOLD);
-      }
-    }
-
-    if (rotDeg < 0) // resets rotation to correct position upon firing, ensuring no negatives for more acurrate reloads
-    {
-      rot.set_position(0);
-    }
-
-
-    //keeps track of the old rotation sensor's position
-    if (launchTrack + 500 < pros::millis()) //running if statement every half second
-    {
-      launchTrack = pros::millis();
-      oldRot = rot.get_position() / 100;
-    }
-
-    if (oldRot > rotDeg + 40) //checks if cata fires
-    {
-      rot.set_position(0);
-    }
-    */
-
-    /*
-    //X-Drive Code
-    pros::Motor M1(1); //Top left motor
-    pros::Motor M2(1); //Bottom left motor
-    pros::Motor M3(1); //Top right motor
-    pros::Motor M4(1); //bottom right motor
-
-    M1 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
-    M2 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-    M3 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-    M4 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
-    */
 
     pros::delay(ez::util::DELAY_TIME); // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
