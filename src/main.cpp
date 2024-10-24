@@ -161,24 +161,6 @@ void autonomous()
  */
 void opcontrol()
 {
-  // old cata variables
-  /*
-  bool cataOff = true;
-  long launchTrack = pros::millis();
-  bool launchFlip = true;
-  int_least8_t oldRot;
-  rot.set_position(0);
-  */
-
-  // pneumatic switch booleans
-  bool blockerSwitch = false;
-  bool lWingSwitch = false;
-  bool rWingSwitch = false;
-
-  // cata variables
-  int cataSpeed = 127;
-  const int cataAdjust = 6;
-
   // drive variables
   const float dBand = 5;
 
@@ -190,8 +172,9 @@ void opcontrol()
 
   // curve out of 10
   // modelled after https://www.desmos.com/calculator/toufp2r8qb
-  int pCurve = 0;   // curve for fwd/back
-  int tCurve = 0.3; // curve for turn
+  float pCurve = 0.6;  // curve for fwd/back
+  float tCoefficient = 0.75; // curve for turn
+  float tCurve = 1.1; //coefficient for turn
 
   double e = exp(1); // Euler's constant
 
@@ -199,11 +182,7 @@ void opcontrol()
 
   while (true)
   {
-    // chassis.tank(); // Tank control
-    // chassis.arcade_standard(ez::SPLIT); // Standard split arcade
-    // chassis.arcade_standard(ez::SINGLE); // Standard single arcade
-    // chassis.arcade_flipped(ez::SPLIT); // Flipped split arcade
-    // chassis.arcade_flipped(ez::SINGLE); // Flipped single arcade
+    
 
     // driver code
     //  variable for # of motors per side
@@ -213,7 +192,9 @@ void opcontrol()
     {
       // calculates power curve for joystick
       power = master.get_analog(ANALOG_LEFT_Y);
-      powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
+      powerC = ((1 - pCurve) * power) + ((pCurve * pow(power, 3))/10000);
+      //modelled after https://www.desmos.com/calculator/asjs86sdpy
+      //powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
     }
     else
     {
@@ -224,7 +205,8 @@ void opcontrol()
     if (master.get_analog(ANALOG_RIGHT_X) > dBand || master.get_analog(ANALOG_RIGHT_X) < -dBand)
     {
       turn = -master.get_analog(ANALOG_RIGHT_X);
-      turnC = turn * (pow(e, -(tCurve / 10)) + pow(e, (abs(turn) - 127) / 10) * (1 - pow(e, -(tCurve / 10))));
+      turnC = tCurve * ((1 - tCoefficient) * turn) + ((tCoefficient * pow(turn, 3))/10000);
+      //turnC = turn * (pow(e, -(tCurve / 10)) + pow(e, (abs(turn) - 127) / 10) * (1 - pow(e, -(tCurve / 10))));
     }
     else
     {
@@ -237,77 +219,14 @@ void opcontrol()
       chassis.right_motors[i].move(powerC + turnC);
     }
 
-    // intake code
-    if (master.get_digital(DIGITAL_R2)) // outtake
-    {
-      intake.move(-127);
-    }
-    else if (master.get_digital(DIGITAL_L2)) // intake
-    {
-      intake.move(127);
-    }
-    else
-    {
-      intake.move(0);
-    }
-
-    // cata speed adjustment code
-    if (master.get_digital_new_press(DIGITAL_UP))
-    {
-      cataSpeed += cataAdjust;
-    }
-    if (master.get_digital_new_press(DIGITAL_DOWN))
-    {
-      cataSpeed -= cataAdjust;
-    }
-
-    //caps catapult speed at a certain range
-    if (cataSpeed > 127)
-    {
-      cataSpeed = 127;
-    }
-    if (cataSpeed < 70)
-    {
-      cataSpeed = 70;
-    }
-
-    // new cata code
-    if (master.get_digital(DIGITAL_B))
-    {
-      cata.move(cataSpeed);
-    }
-    else
-    {
-      cata.move(0);
-    }
-
-    // toggleable blocker
-
-    // wings
     
-
-    //wings control only 1 solenoid
-    if (master.get_digital_new_press(DIGITAL_A))
-    {
-      if (lWingSwitch == false)
-      {
-        lWingSwitch = true;
-        lWing.set_value(true);
-      }
-      else
-      {
-        lWingSwitch = false;
-        lWing.set_value(false);
-      }
-    }
-
     
 
     // master.rumble(".");
 
     // ez::print_to_screen("Rotation Angle: " + std::to_string(rotDeg), 3);
     // master.set_text(1, 1, "Rot: " + std::to_string(rotDeg));
-    ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
+   // ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
     ez::print_to_screen("Linear Speed: " + std::to_string(power), 4);
     ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
     //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
