@@ -161,24 +161,6 @@ void autonomous()
  */
 void opcontrol()
 {
-  // old cata variables
-  /*
-  bool cataOff = true;
-  long launchTrack = pros::millis();
-  bool launchFlip = true;
-  int_least8_t oldRot;
-  rot.set_position(0);
-  */
-
-  // pneumatic switch booleans
-  bool blockerSwitch = false;
-  bool lWingSwitch = false;
-  bool rWingSwitch = false;
-
-  // cata variables
-  int cataSpeed = 127;
-  const int cataAdjust = 6;
-
   // drive variables
   const float dBand = 5;
 
@@ -190,8 +172,9 @@ void opcontrol()
 
   // curve out of 10
   // modelled after https://www.desmos.com/calculator/toufp2r8qb
-  int pCurve = 0;   // curve for fwd/back
-  int tCurve = 0.3; // curve for turn
+  float pCurve = 0.6;  // curve for fwd/back
+  float tCoefficient = 0.75; // curve for turn
+  float tCurve = 1.1; //coefficient for turn
 
   double e = exp(1); // Euler's constant
 
@@ -199,11 +182,7 @@ void opcontrol()
 
   while (true)
   {
-    // chassis.tank(); // Tank control
-    // chassis.arcade_standard(ez::SPLIT); // Standard split arcade
-    // chassis.arcade_standard(ez::SINGLE); // Standard single arcade
-    // chassis.arcade_flipped(ez::SPLIT); // Flipped split arcade
-    // chassis.arcade_flipped(ez::SINGLE); // Flipped single arcade
+    
 
     // driver code
     //  variable for # of motors per side
@@ -213,7 +192,9 @@ void opcontrol()
     {
       // calculates power curve for joystick
       power = master.get_analog(ANALOG_LEFT_Y);
-      powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
+      powerC = ((1 - pCurve) * power) + ((pCurve * pow(power, 3))/10000);
+      //modelled after https://www.desmos.com/calculator/asjs86sdpy
+      //powerC = power * (pow(e, -(pCurve / 10)) + pow(e, (abs(power) - 127) / 10) * (1 - pow(e, -(pCurve / 10))));
     }
     else
     {
@@ -224,7 +205,8 @@ void opcontrol()
     if (master.get_analog(ANALOG_RIGHT_X) > dBand || master.get_analog(ANALOG_RIGHT_X) < -dBand)
     {
       turn = -master.get_analog(ANALOG_RIGHT_X);
-      turnC = turn * (pow(e, -(tCurve / 10)) + pow(e, (abs(turn) - 127) / 10) * (1 - pow(e, -(tCurve / 10))));
+      turnC = tCurve * ((1 - tCoefficient) * turn) + ((tCoefficient * pow(turn, 3))/10000);
+      //turnC = turn * (pow(e, -(tCurve / 10)) + pow(e, (abs(turn) - 127) / 10) * (1 - pow(e, -(tCurve / 10))));
     }
     else
     {
@@ -237,196 +219,18 @@ void opcontrol()
       chassis.right_motors[i].move(powerC + turnC);
     }
 
-    // intake code
-    if (master.get_digital(DIGITAL_R2)) // outtake
-    {
-      intake.move(-127);
-    }
-    else if (master.get_digital(DIGITAL_L2)) // intake
-    {
-      intake.move(127);
-    }
-    else
-    {
-      intake.move(0);
-    }
-
-    // cata speed adjustment code
-    if (master.get_digital_new_press(DIGITAL_UP))
-    {
-      cataSpeed += cataAdjust;
-    }
-    if (master.get_digital_new_press(DIGITAL_DOWN))
-    {
-      cataSpeed -= cataAdjust;
-    }
-
-    //caps catapult speed at a certain range
-    if (cataSpeed > 127)
-    {
-      cataSpeed = 127;
-    }
-    if (cataSpeed < 70)
-    {
-      cataSpeed = 70;
-    }
-
-    // new cata code
-    if (master.get_digital(DIGITAL_A))
-    {
-      cata.move(cataSpeed);
-    }
-    else
-    {
-      cata.move(0);
-    }
-
-    // toggleable blocker
-    if (master.get_digital_new_press(DIGITAL_L1))
-    {
-      if (blockerSwitch == false)
-      {
-        blockerSwitch = true;
-        blocker.set_value(true);
-      }
-      else
-      {
-        blockerSwitch = false;
-        blocker.set_value(false);
-      }
-    }
-
-    // wings
-    if (master.get_digital_new_press(DIGITAL_R1))
-    {
-      if (lWingSwitch == true && rWingSwitch == true) // if both wings are down, both come up
-      {
-        lWingSwitch = false;
-        rWingSwitch = false;
-
-        lWing.set_value(false);
-        rWing.set_value(false);
-      }
-      else if (lWingSwitch == true || rWingSwitch == true) // if one wing is down, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-      else // if both wings are up, both come down
-      {
-        lWingSwitch = true;
-        rWingSwitch = true;
-
-        lWing.set_value(true);
-        rWing.set_value(true);
-      }
-    }
-
-    //left wing individual controls
-    if (master.get_digital_new_press(DIGITAL_LEFT))
-    {
-      if (lWingSwitch == false)
-      {
-        lWingSwitch = true;
-        lWing.set_value(true);
-      }
-      else
-      {
-        lWingSwitch = false;
-        lWing.set_value(false);
-      }
-    }
-
-    //right wing individual controls
-    if (master.get_digital_new_press(DIGITAL_RIGHT))
-    {
-      if (rWingSwitch == false)
-      {
-        rWingSwitch = true;
-        rWing.set_value(true);
-      }
-      else
-      {
-        rWingSwitch = false;
-        rWing.set_value(false);
-      }
-    }
+    
+    
 
     // master.rumble(".");
 
     // ez::print_to_screen("Rotation Angle: " + std::to_string(rotDeg), 3);
     // master.set_text(1, 1, "Rot: " + std::to_string(rotDeg));
-    ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
+   // ez::print_to_screen("CataSpeed = " + std::to_string(cataSpeed), 3);
     ez::print_to_screen("Linear Speed: " + std::to_string(power), 4);
     ez::print_to_screen("Drive Motor Temp: " + std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())), 2);
     //  master.set_text(1, 1, std::to_string(static_cast<int>(chassis.left_motors[0].get_temperature())) + "power = " + std::to_string(power));
 
-    /*
-    // archive old cata
-    //toggle switch
-    if (master.get_digital_new_press(DIGITAL_B))
-    {
-      if (cataOff == true)
-      {
-        cataOff = false;
-        cata.move(0);
-      }
-      else
-      {
-        cataOff = true;
-        cata.move(0);
-      }
-    }
-
-    int_least8_t rotDeg = rot.get_position() / 100; // sets rotations sensor to an integer
-    if (cataOff == false)
-    {
-      if (rotDeg < 41 || master.get_digital(DIGITAL_A)) // moves down if button is pressed or rotation is in correct position
-      {
-        cata.move(127);
-        cata.set_brake_modes(MOTOR_BRAKE_COAST);
-      }
-      else // stops cata once distance has been reached
-      {
-        cata.move(0);
-        cata.set_brake_modes(MOTOR_BRAKE_HOLD);
-      }
-    }
-
-    if (rotDeg < 0) // resets rotation to correct position upon firing, ensuring no negatives for more acurrate reloads
-    {
-      rot.set_position(0);
-    }
-
-
-    //keeps track of the old rotation sensor's position
-    if (launchTrack + 500 < pros::millis()) //running if statement every half second
-    {
-      launchTrack = pros::millis();
-      oldRot = rot.get_position() / 100;
-    }
-
-    if (oldRot > rotDeg + 40) //checks if cata fires
-    {
-      rot.set_position(0);
-    }
-    */
-
-    /*
-    //X-Drive Code
-    pros::Motor M1(1); //Top left motor
-    pros::Motor M2(1); //Bottom left motor
-    pros::Motor M3(1); //Top right motor
-    pros::Motor M4(1); //bottom right motor
-
-    M1 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
-    M2 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-    M3 = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X) + master.get_analog(ANALOG_RIGHT_X);
-    M4 = master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X) - master.get_analog(ANALOG_RIGHT_X);
-    */
 
     pros::delay(ez::util::DELAY_TIME); // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
